@@ -1,0 +1,125 @@
+targetA = [1 0 0 0]';
+
+targetB = [0 1 0 0]';
+
+targetC = [0 0 1 0]';
+
+targetD = [0 0 0 1]';
+
+targets = [targetA,targetB,targetC,targetD];
+
+% Показать символы
+
+for nI = 1:4
+
+nAlph = alphabet(:,nI);
+
+plotchar(nAlph);
+
+pause % ...
+
+end
+
+% Показать символы искаженные шумом
+
+% (уровень шума - 0.25)
+
+for nI = 1:4
+
+badAlph = alphabet(:,nI) + randn(35,1)*0.25;
+
+plotchar(badAlph);
+
+pause % ...
+
+end
+
+% Определение структуры нейросети
+
+% входной сигнал изменяется в диапазоне от 0 до 1
+
+% (два слоя - 8 нейронов в первом и 2 в выходном
+
+%
+
+net = newff(minmax(alphabet),[6 4],{'logsig' 'logsig'});
+
+% параметры обучения сети
+
+net.trainParam.goal = 0.01; %
+
+net.trainParam.show = 20; %
+
+net.trainParam.epochs = 500; %
+
+% Сформировать обучающую выборку Р-вход, Т-желаемый выход
+
+P = alphabet;
+
+T = targets;
+
+% обучить сеть
+
+net = train(net,P,T);
+
+pause % ...
+
+% применить сеть
+
+% подать на вход первый символ - А
+
+nA = alphabet(:,1);
+
+plotchar(nA);
+
+pause % ...
+
+A2 = sim(net,nA);
+
+% Определить номер выхода с наибольшим значением сигнала
+
+A2 = compet(A2);
+
+answer = compet(A2) == 1;
+
+% Показать символ определенный нейросетью
+
+plotchar(alphabet(:,answer));
+
+pause % ...
+
+% применить сеть (второй вариант)
+
+% подать на вход первый символ - А (зашумленный)
+
+badA = alphabet(:,1) + randn(35,1)*0.25;
+
+plotchar(badA);
+
+pause % ...
+
+A2 = sim(net,badA);
+
+% Определить номер выхода с наибольшим значением сигнала
+
+A2 = compet(A2);
+
+answer = compet(A2) == 1;
+
+% Показать символ определенный нейросетью
+
+plotchar(alphabet(:,answer));
+
+pause % ...
+
+% Определить номер выхода с наибольшим значением сигнала
+
+A2 = compet(A2);
+
+answer = find(compet(A2) == 1);
+
+% Показать символ определенный нейросетью
+
+plotchar(alphabet(:,answer));
+
+pause % ...
